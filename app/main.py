@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from app.core.database import engine
+from sqlalchemy import text
 
 app = FastAPI(
     title = "DevPulse",
@@ -15,3 +17,8 @@ def root():
 def health_check():
     return {"status": "okay"}
 
+@app.get("/db-check")
+def db_check():
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+    return {"database": "connected"}
