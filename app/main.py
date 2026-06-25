@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 from app.core.database import engine
 from sqlalchemy import text
+from app.api import repos
 
 app = FastAPI(
     title = "DevPulse",
     description = "Developer activity & productivity tracking",
     version = "0.1.0"
 )
-
+app.include_router(repos.router)
 
 @app.get("/")
 def root():
