@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.core.database import engine
 from sqlalchemy import text
-from app.api import repos
+from app.api import repos, analytics
 
 app = FastAPI(
     title = "DevPulse",
@@ -9,6 +9,7 @@ app = FastAPI(
     version = "0.1.0"
 )
 app.include_router(repos.router)
+app.include_router(analytics.router)
 
 @app.get("/")
 def root():
