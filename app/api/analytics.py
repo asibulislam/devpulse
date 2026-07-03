@@ -8,7 +8,7 @@ from app.models.commit import Commit
 router = APIRouter(prefix="/api", tags=["analytics"])
 
 
-@router.get("/leaderboard")
+@router.get("/leaderboard", summary="Rank all contributors by total commit count")
 def get_leaderboard(db: Session = Depends(get_db)):
     results = (
         db.query(Commit.author, func.count(Commit.id).label("commit_count"))
@@ -24,7 +24,7 @@ def get_leaderboard(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/heatmap/{username}")
+@router.get("/heatmap/{username}", summary="Daily commit activity for one contributor")
 def get_heatmap(username: str, db: Session = Depends(get_db)):
     commits = db.query(Commit).filter(Commit.author == username).all()
     if not commits:

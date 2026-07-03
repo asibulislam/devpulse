@@ -11,15 +11,15 @@ app = FastAPI(
 app.include_router(repos.router)
 app.include_router(analytics.router)
 
-@app.get("/")
+@app.get("/", summary="Root — confirm the API is running")
 def root():
     return {"message": "DevPulse API is running!"}
 
-@app.get("/health")
+@app.get("/health", summary="Health check")
 def health_check():
     return {"status": "okay"}
 
-@app.get("/db-check")
+@app.get("/db-check", summary="Database connection check")
 def db_check():
     with engine.connect() as conn:
         conn.execute(text("SELECT 1"))

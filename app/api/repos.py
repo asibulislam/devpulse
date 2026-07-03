@@ -9,7 +9,7 @@ from app.models.repository import Repository
 
 router = APIRouter(prefix="/api/repos", tags=["repos"])
 
-@router.get("/{owner}/{repo}/commits")
+@router.get("/{owner}/{repo}/commits", summary="Fetch live commits from GitHub")
 def get_repo_commits(owner: str, repo: str, limit: int = 30):
     try:
         commits = fetch_commits(owner, repo, limit)
@@ -18,7 +18,7 @@ def get_repo_commits(owner: str, repo: str, limit: int = 30):
     return {"owner": owner, "repo": repo, "count": len(commits), "commits": commits}
 
 
-@router.post("/{owner}/{repo}/sync")
+@router.post("/{owner}/{repo}/sync", summary="Sync commits from GitHub to database")
 def sync_repo_commits(owner: str, repo: str, limit: int = 30, db: Session = Depends(get_db)):
     try:
         saved = sync_commits(db, owner, repo, limit)
@@ -27,7 +27,7 @@ def sync_repo_commits(owner: str, repo: str, limit: int = 30, db: Session = Depe
     return {"owner": owner, "repo": repo, "new_commits_saved": len(saved)}
 
 
-@router.get("/{owner}/{repo}/commits/stored")
+@router.get("/{owner}/{repo}/commits/stored", summary="List commits stored in database")
 def get_stored_commits(owner: str, repo: str, db: Session = Depends(get_db)):
     repository = db.query(Repository).filter(Repository.full_name == f"{owner}/{repo}").first()
     if not repository:
@@ -40,7 +40,7 @@ def get_stored_commits(owner: str, repo: str, db: Session = Depends(get_db)):
     ]}
 
 
-@router.get("/{owner}/{repo}/activity")
+@router.get("/{owner}/{repo}/activity", summary="Daily commit activity for a repo")
 def get_repo_activity(owner: str, repo: str, db: Session = Depends(get_db)):
     repository = db.query(Repository).filter(Repository.full_name == f"{owner}/{repo}").first()
     if not repository:
