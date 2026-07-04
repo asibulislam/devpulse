@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.core.database import engine
 from sqlalchemy import text
-from app.api import repos, analytics
+from app.api import repos, analytics, auth
 
 app = FastAPI(
     title = "DevPulse",
@@ -10,7 +10,7 @@ app = FastAPI(
 )
 app.include_router(repos.router)
 app.include_router(analytics.router)
-
+app.include_router(auth.router)
 @app.get("/", summary="Root — confirm the API is running")
 def root():
     return {"message": "DevPulse API is running!"}
