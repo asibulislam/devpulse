@@ -126,4 +126,6 @@ pytest
 
 ## License
 
-MIT
+## License
+
+MIT © Md. Asibul Islam 2026
