@@ -1,13 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from collections import Counter
+from typing import List
 from app.core.database import get_db
 from app.services.github_service import fetch_commits, sync_commits
 from app.models.commit import Commit
 from app.models.repository import Repository
+from app.schemas.commit import CommitResponse
 
 
 router = APIRouter(prefix="/api/repos", tags=["repos"])
+
 
 @router.get("/{owner}/{repo}/commits", summary="Fetch live commits from GitHub")
 def get_repo_commits(owner: str, repo: str, limit: int = 30):
@@ -35,7 +38,12 @@ def get_stored_commits(owner: str, repo: str, db: Session = Depends(get_db)):
 
     commits = db.query(Commit).filter(Commit.repository_id == repository.id).all()
     return {"owner": owner, "repo": repo, "count": len(commits), "commits": [
-        {"sha": c.sha[:7], "author": c.author, "message": c.message, "date": c.committed_at}
+        CommitResponse(
+            sha=c.sha[:7],
+            author=c.author,
+            message=c.message,
+            date=c.committed_at
+        ).model_dump()
         for c in commits
     ]}
 
