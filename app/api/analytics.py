@@ -9,16 +9,24 @@ router = APIRouter(prefix="/api", tags=["analytics"])
 
 
 @router.get("/leaderboard", summary="Rank all contributors by total commit count")
-def get_leaderboard(db: Session = Depends(get_db)):
+def get_leaderboard(page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
+    total_contributors = db.query(Commit.author).distinct().count()
+
+    offset = (page - 1) * limit
     results = (
         db.query(Commit.author, func.count(Commit.id).label("commit_count"))
         .group_by(Commit.author)
         .order_by(func.count(Commit.id).desc())
+        .offset(offset)
+        .limit(limit)
         .all()
     )
     return {
+        "page": page,
+        "limit": limit,
+        "total_contributors": total_contributors,
         "leaderboard": [
-            {"rank": i + 1, "author": author, "commits": count}
+            {"rank": offset + i + 1, "author": author, "commits": count}
             for i, (author, count) in enumerate(results)
         ]
     }
