@@ -2,9 +2,16 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+
 class UserCreate(BaseModel):
     username: str
     password: str
+
+
+class UserUpdate(BaseModel):
+    github_username: Optional[str] = None
+    email: Optional[str] = None
+
 
 class UserResponse(BaseModel):
     id: int
