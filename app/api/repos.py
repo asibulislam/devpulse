@@ -1,4 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 from collections import Counter
 from typing import List
@@ -10,6 +12,7 @@ from app.schemas.commit import CommitResponse
 from app.models.user import User
 from app.api.auth import get_current_user
 
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api/repos", tags=["repos"])
 
@@ -24,7 +27,9 @@ def get_repo_commits(owner: str, repo: str, limit: int = 30):
 
 
 @router.post("/{owner}/{repo}/sync", summary="Sync commits from GitHub to database")
+@limiter.limit("5/minute")
 def sync_repo_commits(
+    request: Request,
     owner: str,
     repo: str,
     limit: int = 30,
