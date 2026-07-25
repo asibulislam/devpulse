@@ -5,6 +5,8 @@ developer activity metrics — leaderboards, heatmaps, and daily commit breakdow
 
 Built as a portfolio project targeting the Bangladesh tech industry internship market.
 
+**Live API:** https://devpulse-ya7b.onrender.com/docs
+
 ---
 
 ## Tech Stack
@@ -18,6 +20,7 @@ Built as a portfolio project targeting the Bangladesh tech industry internship m
 | GitHub Integration | PyGithub |
 | Testing | pytest + httpx |
 | Config | pydantic-settings |
+| Deployment | Render |
 
 ---
 
@@ -36,12 +39,21 @@ devpulse/
 │   │   ├── user.py            # User model
 │   │   ├── repository.py      # Repository model
 │   │   └── commit.py          # Commit model
+│   ├── schemas/
+│   │   ├── user.py            # User input/output schemas
+│   │   ├── commit.py          # Commit response schema
+│   │   └── token.py           # Token response schema
 │   ├── services/
 │   │   └── github_service.py  # GitHub API logic
 │   └── main.py                # FastAPI app entry point
 ├── tests/
-│   └── test_main.py
+│   ├── conftest.py            # Test fixtures and shared setup
+│   ├── test_main.py           # Root and health endpoint tests
+│   ├── test_auth.py           # Auth flow tests
+│   ├── test_repos.py          # Repo endpoint tests
+│   └── test_analytics.py     # Analytics endpoint tests
 ├── alembic/                   # Database migrations
+├── Dockerfile
 ├── docker-compose.yml
 ├── .env.example
 └── requirements.txt
@@ -77,26 +89,28 @@ Edit `.env` and fill in your real values:
 - `SECRET_KEY` — any random string
 - `GITHUB_TOKEN` — GitHub personal access token with `repo` scope
 
-### 4. Start PostgreSQL with Docker
+### 4. Start with Docker (recommended)
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-### 5. Run database migrations
+Both the API and PostgreSQL start together. Then run migrations:
 
 ```bash
+docker exec devpulse_app alembic upgrade head
+```
+
+API is now live at `http://127.0.0.1:8000`
+Interactive docs at `http://127.0.0.1:8000/docs`
+
+### 5. Or run locally without Docker
+
+```bash
+docker compose up -d db
 alembic upgrade head
-```
-
-### 6. Start the server
-
-```bash
 uvicorn app.main:app --reload
 ```
-
-API is now live at `http://127.0.0.1:8000`  
-Interactive docs at `http://127.0.0.1:8000/docs`
 
 ---
 
@@ -107,6 +121,11 @@ Interactive docs at `http://127.0.0.1:8000/docs`
 | GET | `/` | Confirm API is running |
 | GET | `/health` | Health check |
 | GET | `/db-check` | Database connection check |
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and get JWT token |
+| GET | `/api/auth/me` | Get current user profile |
+| PATCH | `/api/auth/me` | Update github_username and email |
+| GET | `/api/auth/me/stats` | Personal commit stats |
 | POST | `/api/repos/{owner}/{repo}/sync` | Sync commits from GitHub to DB |
 | GET | `/api/repos/{owner}/{repo}/commits` | Fetch live commits from GitHub |
 | GET | `/api/repos/{owner}/{repo}/commits/stored` | List commits stored in DB |
@@ -123,8 +142,6 @@ pytest
 ```
 
 ---
-
-## License
 
 ## License
 
