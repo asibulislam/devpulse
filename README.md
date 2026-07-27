@@ -8,6 +8,8 @@ API integration in a production-style backend service.
 
 **Live API:** https://devpulse-ya7b.onrender.com/docs
 
+**Live Dashboard:** https://asibulislam-devpulse.streamlit.app
+
 ---
 
 ## Tech Stack
